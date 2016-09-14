@@ -1,0 +1,39 @@
+
+/*--Image Upload Functionality--*/
+.image-container{
+	margin-top: 5px;
+}
+.image-container,
+.image-container *{
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.image-container .image{
+	position: relative;
+	float: left;
+	width: 47%;
+	margin: 0% 1.5% 3.0% 1.5%;
+	max-width: 250px;
+}
+.image .image-preview{
+	padding-bottom: 100%;
+	width: 100%;
+	background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-color: #eee;
+}
+.image .image-controls{
+	width: 100%;
+    position: absolute;
+    bottom: 0px;
+}
+.image .image-controls .control{
+	float: left;
+    width: 30px;
+    background: #fff;
+    text-align: center;
+    padding: 5px;
+    cursor: pointer;
+}
