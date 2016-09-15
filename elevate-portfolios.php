@@ -4,7 +4,7 @@
  * Plugin URI:  https://elevate360.com.au/plugins
  * Description: Showcases portfolios with an easy to use admin back-end. Contains a filterable listing page for portfolios plus a single portfolio showcase. Use a combination of
  * either shortcodes or action hooks to output content for your single portfolio pages. All portfolios are enriched with schema.org metadata  
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Simon Codrington
  * Author URI:  https://simoncodrington.com.au
  * Text Domain: elevate-portfolios
@@ -37,6 +37,8 @@
 	private $meta_field_args = null;
 	//taxonomy args
 	private $taxonomy_args = null;
+	//taxonomy field args
+	private $taxonomy_field_args = null;
 	
 	
 	//constructor
@@ -89,6 +91,17 @@
 						'slug'			=> '/portfolios/tags'
 					)
 				)
+			)
+		);
+		
+		//set up tax field info
+		$this->taxonomy_field_args = array(
+			array(
+				'id'			=> 'el_category_content',
+				'title'			=> 'Category Content Area',
+				'description'	=> 'Full WP Editor that you can edit to outline information about this category',
+				'taxonomy_name'	=> 'el_portfolio_category',
+				'type'			=> 'editor'
 			)
 		);
 		
@@ -243,7 +256,7 @@
 			$this->meta_box_args,
 			$this->meta_field_args,
 			$this->taxonomy_args,
-			false); 	
+			$this->taxonomy_field_args); 	
 		
 			
 		add_action('wp_enqueue_scripts', array($this, 'enqueue_public_scripts_and_styles'));
