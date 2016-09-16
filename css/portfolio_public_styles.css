@@ -184,6 +184,90 @@
 	background: #ccc;
 }
 
+/*General all purpose styles*/
+
+.portfolio .inner-wrap{
+	position: relative;
+}
+.portfolio .inner-wrap.aspect-16-9{
+	padding-bottom: 56.2%;
+}
+.portfolio .inner-wrap.aspect-3-4{
+	padding-bottom: 66.66%;
+}
+.portfolio .inner-wrap.aspect-1-2{
+	padding-bottom: 50%;
+}
+.portfolio .inner-wrap.aspect-1-1{
+	padding-bottom: 100%;
+}
+
+.portfolio .inner-wrap .background-image{
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+
+/*--Portfolio Flexslider--*/
+.portfolio-gallery-slider.flexslider{
+	width: 100%;
+    float: left;
+    background: transparent;
+    margin: 0px;
+    border-radius: 0px;
+    box-shadow: none;
+    border: 0px;	
+    margin-bottom: 30px;
+}
+.portfolio-gallery-slider .flex-control-nav, 
+.portfolio-gallery-slider .flex-direction-nav, 
+.portfolio-gallery-slider .slides{
+	list-style-type: none!important;
+}
+/*next / prev*/
+.portfolio-gallery-slider .flex-direction-nav a{
+	text-shadow: none;
+	text-align: center;
+}
+.portfolio-gallery-slider .flex-direction-nav a:before{
+    width: 100%;
+    height: 100%;
+    line-height: 40px;
+    font-size: 30px;
+    text-shadow: none;
+    color: #333;
+}
+.portfolio-gallery-slider .flex-direction-nav .flex-prev{
+	opacity: 1;
+	left: 0%;
+}
+.portfolio-gallery-slider .flex-direction-nav .flex-next{
+	opacity: 1;
+	right: 0%;
+}
+
+
+/*pagination*/
+.portfolio-gallery-slider .flex-control-paging li a{
+	height: 15px;
+	width: 15px;
+	box-shadow: none;
+    border-radius: 50%;
+    background: #ccc;
+    -webkit-transition: all 250ms ease-out;
+    -moz-transition: all 250ms ease-out;
+    transition: all 250ms ease-out;
+}
+.portfolio-gallery-slider .flex-control-paging li a.flex-active,
+.portfolio-gallery-slider .flex-control-paging li a:hover{
+	background: #999;
+}
 
 /*--Media Queries--*/
 @media screen and (min-width: 768px){

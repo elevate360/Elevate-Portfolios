@@ -11,9 +11,6 @@
  
  class el_content_type{
  	
-	//version of this content type class
-	private static $version = "1.0.0"; 
-	
 	//instance of the class
 	private static $instance = null;
 
@@ -300,6 +297,8 @@
 		$taxonomy_name = $taxonomy->taxonomy;
 		//type of field controls that save multiple values
 		$multi_value_fields = array('checkbox', 'upload-multi-image', 'related-posts');
+		//exclude some fields from sanitization (ruins formatting)
+		$exclude_from_sanitization = array('editor'); 
 		
 		//filterable taxonomy field arguments
 		$this->taxonomy_field_args = apply_filters(get_called_class() . '_taxonomy_field_args', $this->taxonomy_field_args);
@@ -320,7 +319,12 @@
 							$value = json_encode($value);
 						}
 					}else{
-						$value = isset($_POST[$field['id']]) ? sanitize_text_field($_POST[$field['id']]) : '';
+						
+						if(!in_array($field['type'], $exclude_from_sanitization)){
+							$value = isset($_POST[$field['id']]) ? sanitize_text_field($_POST[$field['id']]) : '';
+						}else{
+							$value = isset($_POST[$field['id']]) ? ($_POST[$field['id']]) : '';
+						}	
 					}
 
 					//update meta values
@@ -544,7 +548,7 @@
 								}
 								$counter = 0; 
 								foreach($field['args']['options'] as $option){
-									
+	
 									$html .= '<p>';
 									
 									$checked = '';
@@ -634,6 +638,7 @@
 						
 					);
 					
+					
 					$html .= '<tr class="form-field wb-field">';
 						$html .= '<th valign="top" scope="row">';
 							$html .= '<label for="' . $field['id'] . '">' . $field['title'] . '</label>';
@@ -642,7 +647,17 @@
 							if(isset($field['description'])){
 								$html .= '<p class="description">' . $field['description'] . '</p>';
 							}
-								
+							
+							//add a trigger to the TinyMCE element to ensure editor is saved when editing terms
+							//http://wordpress.stackexchange.com/questions/39594/wp-editor-textarea-value-not-updating
+							$html .= '<script type="text/javascript">';
+							$html .= 'jQuery(document).ready(function($){
+										$("#submit").on("mousedown", function() {
+											console.log("clicked");
+											tinyMCE.triggerSave();
+										});
+									  });';
+							$html .= '</script>';
 							
 							
 							//use output buffering to capture this

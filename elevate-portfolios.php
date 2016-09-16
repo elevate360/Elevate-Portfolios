@@ -4,7 +4,7 @@
  * Plugin URI:  https://elevate360.com.au/plugins
  * Description: Showcases portfolios with an easy to use admin back-end. Contains a filterable listing page for portfolios plus a single portfolio showcase. Use a combination of
  * either shortcodes or action hooks to output content for your single portfolio pages. All portfolios are enriched with schema.org metadata  
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Simon Codrington
  * Author URI:  https://simoncodrington.com.au
  * Text Domain: elevate-portfolios
@@ -17,6 +17,9 @@
  * - More options potentially
  */
 
+ 
+ //TODO: check for WP version before starting, we handle terms using WP_Term (4.4+)
+ 
  
  //load our el-content-type
  if(!class_exists('el_content_type')){
@@ -37,6 +40,7 @@
 	private $meta_field_args = null;
 	//taxonomy args
 	private $taxonomy_args = null;
+	//taxonomy field args
 	
 	
 	//constructor
@@ -92,6 +96,85 @@
 			)
 		);
 		
+		//taxonomy fields to add to terms
+		$this->taxonomy_field_args = array(
+
+			array(
+				'id'			=> 'el_portfolio_term_content',
+				'title'			=> 'Term Content',
+				'description'	=> 'Primary content used for this term. Used as the primary content zone',
+				'taxonomy_name'	=> 'el_portfolio_category',
+				'type'			=> 'editor'
+			),
+			array(
+				'id'			=> 'el_portfolio_term_content',
+				'title'			=> 'Term Content',
+				'description'	=> 'Primary content used for this term. Used as the primary content zone',
+				'taxonomy_name'	=> 'el_portfolio_tags',
+				'type'			=> 'editor'
+			),
+			array(
+				'id'			=> 'el_portfolio_term_subtitle',
+				'title'			=> 'Term Subtitle',
+				'description'	=> 'secondary smaller subtitle displayed when this term is shown in a listing of all portfolio categories or tag',
+				'taxonomy_name'	=> 'el_portfolio_category',
+				'type'			=> 'text'
+			),
+			array(
+				'id'			=> 'el_portfolio_term_subtitle',
+				'title'			=> 'Term Subtitle',
+				'description'	=> 'secondary smaller subtitle displayed when this term is shown in a listing of all portfolio categories or tag',
+				'taxonomy_name'	=> 'el_portfolio_tags',
+				'type'			=> 'text'
+			),
+			array(
+				'id'			=> 'el_portfolio_term_image',
+				'title'			=> 'Term Image',
+				'description'	=> 'Image that represents this term. To be used when viewing a grid listing of all terms e.g viewing all portfolio categories',
+				'taxonomy_name'	=> 'el_portfolio_category',
+				'type'			=> 'upload-image'
+			),
+			array(
+				'id'			=> 'el_portfolio_term_image',
+				'title'			=> 'Term Image',
+				'description'	=> 'Image that represents this term. To be used when viewing a grid listing of all terms e.g viewing all portfolio tags',
+				'taxonomy_name'	=> 'el_portfolio_tags',
+				'type'			=> 'upload-image'
+			),
+			array(
+				'id'			=> 'el_portfolio_term_overlay_background_color',
+				'title'			=> 'Term Overlay Background Colour',
+				'description'	=> 'Colour of the overlay used when hovering / interacting with this term when viewed in it\'s card listing form',
+				'taxonomy_name'	=> 'el_portfolio_category',
+				'type'			=> 'color'
+			),
+			array(
+				'id'			=> 'el_portfolio_term_overlay_background_color',
+				'title'			=> 'Term Overlay Background Colour',
+				'description'	=> 'Colour of the overlay used when hovering / interacting with this term when viewed in it\'s card listing form',
+				'taxonomy_name'	=> 'el_portfolio_tags',
+				'type'			=> 'color'
+			),
+			array(
+				'id'			=> 'el_portfolio_term_text_color',
+				'title'			=> 'Term Text Colour',
+				'description'	=> 'Colour of the title, subtitle, description and readmore elements when this term is displayed in it\'s card listing form',
+				'taxonomy_name'	=> 'el_portfolio_category',
+				'type'			=> 'color'
+			),
+			array(
+				'id'			=> 'el_portfolio_term_text_color',
+				'title'			=> 'Term Text Colour',
+				'description'	=> 'Colour of the title, subtitle, description and readmore elements when this term is displayed in it\'s card listing form',
+				'taxonomy_name'	=> 'el_portfolio_tags',
+				'type'			=> 'color'
+			)
+			
+			
+			
+
+		);
+		
 		//set up metabox info
 		$this->meta_box_args = array(
 			array(
@@ -109,13 +192,20 @@
 				'args'			=> array(
 					'description' => 'Information about the gallery used for this portfolio'
 				)	
-			
+			),
+			array(
+				'id'			=> 'single_portfolio_gallery_slider_metabox',
+				'title'			=> 'Single Portfolio Gallery Slider',
+				'context'		=> 'normal',
+				'args'			=> array(
+					'description' => 'Here you can define your slider displayed on the single portfolio page'
+				)	
 			)
 		);
 		
 		//set up metafield info
 		$this->meta_field_args = array(
-		
+
 			//archive page settings
 			array(
 				'id'			=> 'portfolio_archive_title',
@@ -207,7 +297,7 @@
 				'meta_box_id'	=> 'listing_portfolio_metabox'
 			),
 			
-			//single page settings
+			//single page gallery
 			array(
 				'id'			=> 'portfolio_gallery_images',
 				'title'			=> 'Portfolio Gallery Images',
@@ -215,6 +305,7 @@
 				'type'			=> 'upload-multi-image',
 				'meta_box_id'	=> 'single_portfolio_gallery_metabox'
 			),
+			
 			array(
 				'id'			=> 'portfolio_gallery_image_type',
 				'title'			=> 'Portfolio Image Display Type',
@@ -234,6 +325,65 @@
 					)
 				)
 			),
+			array(
+				'id'			=> 'portfolio_gallery_items_per_row',
+				'title'			=> 'Portfolio Images Per Row',
+				'description'	=> 'Select how many images will be shown per row in the gallery' ,
+				'type'			=> 'select',
+				'meta_box_id'	=> 'single_portfolio_gallery_metabox',
+				'args'			=> array(
+					'options'		=> array(
+						array(
+							'id'	=> 'row-of-1',
+							'title' => 'Row of 1'
+						),
+						array(
+							'id'	=> 'row-of-2',
+							'title' => 'Row of 2'
+						),
+						array(
+							'id'	=> 'row-of-3',
+							'title' => 'Row of 3'
+						),
+						array(
+							'id'	=> 'row-of-4',
+							'title' => 'Row of 4'
+						),
+						array(
+							'id'	=> 'row-of-5',
+							'title' => 'Row of 5'
+						),
+					)
+				)
+			),
+			
+			//single page gallery slider
+			array(
+				'id'			=> 'portfolio_gallery_slider_images',
+				'title'			=> 'Portfolio Gallery Slider Images',
+				'description'	=> 'Images to be used to build a slider on the single portfolio',
+				'type'			=> 'upload-multi-image',
+				'meta_box_id'	=> 'single_portfolio_gallery_slider_metabox'
+			),
+			array(
+				'id'			=> 'portfolio_gallery_slider_image_type',
+				'title'			=> 'Portfolio Gallery Display Type',
+				'description'	=> 'Determine if your gallery slider images will be displayed as \'background\' images (square and cropped) or as \'traditional\' images (unique sizes displayed with masonry)' ,
+				'type'			=> 'select',
+				'meta_box_id'	=> 'single_portfolio_gallery_slider_metabox',
+				'args'			=> array(
+					'options'		=> array(
+						array(
+							'id'	=> 'background',
+							'title' => 'Background Images'
+						),
+						array(
+							'id'	=> 'traditional',
+							'title' => 'Traditional Images'
+						)
+					)
+				)
+			)
 			
 		);
 	
@@ -243,7 +393,7 @@
 			$this->meta_box_args,
 			$this->meta_field_args,
 			$this->taxonomy_args,
-			false); 	
+			$this->taxonomy_field_args); 	
 		
 			
 		add_action('wp_enqueue_scripts', array($this, 'enqueue_public_scripts_and_styles'));
@@ -252,13 +402,16 @@
 		add_action('et_builder_post_types', array($this, 'add_divi_support'));
 		
 		//action hooks to output content
-		add_action('el_display_portfolio_listing', array($this, 'display_portfolio_listing'));
-		add_action('el_display_portfolio_single', array($this, 'display_portfolio_single'));
-		add_action('el_display_portfolio_gallery', array($this, 'display_portfolio_gallery')); 
-		add_action('el_display_portfolio_categories', array($this, 'display_portfolio_categories'));
-		add_action('el_display_portfolio_tags', array($this, 'display_portfolio_tags'));
-		add_action('el_display_portfolio_pagination', array($this, 'display_portfolio_pagination'));
-		add_action('el_display_portfolio_microdata_information', array($this, 'display_portfolio_microdata_information'));
+		add_action('el_display_portfolio_listing', array($this, 'display_portfolio_listing'), 10, 1); //displays a listing of portfolio cards
+		add_action('el_display_portfolio_single', array($this, 'display_portfolio_single'), 10, 2); //displays a single portfolio card
+		add_action('el_display_portfolio_gallery', array($this, 'display_portfolio_gallery'), 10, 2);  //displays the gallery for a single portfolio
+		add_action('el_display_portfolio_gallery_slider', array($this, 'display_portfolio_gallery_slider'), 10, 2); //displays the gallery slider for a single portfolio
+		add_action('el_display_portfolio_categories', array($this, 'display_portfolio_categories'), 10, 2); //displays the categories for a single portfolio
+		add_action('el_display_portfolio_tags', array($this, 'display_portfolio_tags'), 10, 2); //displays the tags for a single portfolio
+		add_action('el_display_portfolio_pagination', array($this, 'display_portfolio_pagination'), 10, 2); //displays the pagination for a single portfolio
+		add_action('el_display_portfolio_microdata_information', array($this, 'display_portfolio_microdata_information'), 10, 2); //displays the schema.org microdata for a single portfolio
+		add_action('el_display_portfolios_for_term', array($this, 'display_portfolios_for_term'), 10, 2); //displays a listing of portfolios that belong to a single term ID, used for tax listings
+		add_action('el_display_portfolio_term_listing', array($this, 'display_portfolio_term_listing'), 10, 2); //displays a listing of portfolio terms (categories / tags) in a grid. 
 		
 		
 		//TODO: Add universal settings to customizer
@@ -274,10 +427,10 @@
 	}
 
 	//hook to disply a single portfolio item
-	public static function display_portfolio_single($post_id){
+	public static function display_portfolio_single($post_id, $optional_args = array()){
 			
 		$instance = self::getInstance();
-		$html = $instance->get_portfolio_single($post_id);
+		$html = $instance->get_portfolio_single($post_id, $optional_args );
 		
 		echo $html;
 	}
@@ -292,55 +445,87 @@
 	}
 	
 	//displays project pagination
-	public static function display_portfolio_pagination($post_id){
+	public static function display_portfolio_pagination($post_id, $optional_args = array()){
 		$instance = self::getInstance();
-		$html = $instance->get_portfolio_pagination($post_id);
+		$html = $instance->get_portfolio_pagination($post_id, $optional_args);
 		
 		echo $html;
 	}
 	
 	//displays the portfolio tags
-	public static function display_portfolio_tags($post_id){
+	public static function display_portfolio_tags($post_id, $optional_args = array()){
 		$instance = self::getInstance();
-		$html = $instance->get_portfolio_tags($post_id);
+		$html = $instance->get_portfolio_tags($post_id, $optional_args);
 		
 		echo $html;
 	}
 
 	//displays the portfolio categories
-	public static function display_portfolio_categories($post_id){
+	public static function display_portfolio_categories($post_id, $optional_args = array()){
 		$instance = self::getInstance();
-		$html = $instance->get_portfolio_categories($post_id);
+		$html = $instance->get_portfolio_categories($post_id, $optional_args);
 		
 		echo $html;
 	}
 
 	//display the gallery elements for a single portfolio
-	public static function display_portfolio_gallery($post_id){
+	public static function display_portfolio_gallery($post_id, $optional_args = array()){
 			
+		
 		$instance = self::getInstance();
-		$html = $instance->get_portfolio_gallery($post_id);
+		$html = $instance->get_portfolio_gallery($post_id, $optional_args);
 	
 		
+		echo $html;
+	}
+	
+	//display the gallery slider for a single portfolio
+	public static function display_portfolio_gallery_slider($post_id, $optional_args = array()){
+			
+		$instance = self::getInstance();
+		$html = $instance->get_portfolio_gallery_slider($post_id, $optional_args);
+	
 		echo $html;
 	}
 	
 	//outputs an entire microdata format element based off the 'services' schema, displayed as an invisible div
 	//http://schema.org/Service
-	public static function display_portfolio_microdata_information($post_id){
+	public static function display_portfolio_microdata_information($post_id, $optional_args = array()){
 			
 		$instance = self::getInstance();
 		$html = '';
 		
 		$post = get_post($post_id);
-		$html .= $instance->get_portfolio_microdata_information($post->ID);
+		$html .= $instance->get_portfolio_microdata_information($post->ID, $optional_args);
 		
 		echo $html;
 	}
 
+	//action hook to display portfolios belonging to a set term id (category term or tag term)
+	public static function display_portfolios_for_term($term_id, $optional_args = array()){
+		
+		
+		$instance = self::getInstance();
+		
+		$html = '';
+		$html .= $instance->get_portfolios_for_term($term_id, $optional_args);
+		
+		echo $html;
+		
+	}
+
+	public static function display_portfolio_term_listing($taxonomy_name, $optional_args = array()){
+			
+		$instance = self::getInstance();
+		$html = '';
+		
+		$html .= $instance->get_portfolio_term_listing($taxonomy_name, $optional_args);
+		
+		echo $html;
+	}
 
 	//gets the microdata in the form of a service card 
-	public static function get_portfolio_microdata_information($post_id = null){
+	public static function get_portfolio_microdata_information($post_id = null, $optional_args = array()){
 		
 		$instance = self::getInstance();
 		$html = '';
@@ -440,7 +625,7 @@
 	}
 	
 	//gets the single portfolio main content area
-	public static function get_portfolio_content($post_id){
+	public static function get_portfolio_content($post_id, $optional_args = array()){
 			
 		$html = '';
 		$instance = self::getInstance();
@@ -478,6 +663,7 @@
 		$post = get_post($post_id);
 		if($post){
 			$portfolio_gallery_images = get_post_meta($post_id, 'portfolio_gallery_images', true);
+			$portfolio_gallery_items_per_row = get_post_meta($post_id, 'portfolio_gallery_items_per_row', true);
 			$portfolio_gallery_image_type = get_post_meta($post_id, 'portfolio_gallery_image_type', true);
 			
 			if(!empty($portfolio_gallery_images)){
@@ -485,9 +671,7 @@
 				//filter for before gallery output	
 				$html = apply_filters('el_gallery_before', $html); 
 					
-				$classes = isset($optional_args['items_per_row']) ? 'row-of-' . $optional_args['items_per_row'] . ' ' : 'row-of-3 ';
-				$classes .= $portfolio_gallery_image_type;
-				$html .= '<article class="portolio-gallery row-item ' . $classes .'">';
+				$html .= '<article class="portolio-gallery row-item ' . $portfolio_gallery_items_per_row . ' ' . $portfolio_gallery_image_type . '">';
 				
 				$portfolio_gallery_images = json_decode($portfolio_gallery_images);
 
@@ -531,8 +715,76 @@
 		return $html;
 	}
 
+	//gets the gallery output for the slider
+	public static function get_portfolio_gallery_slider($post_id = null, $optional_args = array()){
+			
+		$instance = self::getInstance();
+		$html = '';
+		
+		//if no gallery id passed, check post
+		if(is_null($post_id)){
+			global $post;
+			if($post){
+				if(get_post_type($post) == $instance->post_type_args['post_type_name']){
+					$post_id = $post->ID;
+				}
+			}	
+		}
+		
+		$post = get_post($post_id);
+		if($post){
+			
+			//output slider 
+			$portfolio_gallery_slider_images = get_post_meta($post->ID, 'portfolio_gallery_slider_images', true);
+			if($portfolio_gallery_slider_images){
+				
+				$portfolio_gallery_slider_images = json_decode($portfolio_gallery_slider_images);
+				$portfolio_gallery_slider_image_type = get_post_meta($post->ID, 'portfolio_gallery_slider_image_type', true);
+				
+				$html .= '<div class="flexslider portfolio-gallery-slider portfolio">';
+					$html .= '<div class="slides">';
+					foreach($portfolio_gallery_slider_images as $image_id){
+						
+						$url_medium = wp_get_attachment_image_src($image_id, 'medium', false)[0];
+						$url_large = wp_get_attachment_image_src($image_id, 'large', true)[0];
+					
+						//determine output for images
+						$image = '';
+						if($portfolio_gallery_slider_image_type == 'background' || empty($portfolio_gallery_slider_image_type)){
+							$style = 'background-image: url(' . $url_medium .');'; 
+							$style .= 'background-image: -webkit-image-set(url(' . $url_medium .') 1x, url(' . $url_large .') 2x);';
+							$style .= 'background-image: image-set(url(' . $url_medium .') 1x, url(' . $url_large .') 2x);';	
+							
+							$image .= '<div class="inner-wrap aspect-16-9">';
+								$image .= '<div class="background-image" style="'. $style .'"></div>';
+							$image .= '</div>';
+							
+						}else{
+							$srcset = $url_medium . ' 1x, ' . $url_large . ' 2x'; 
+							$image .= '<img src="' . $url_medium . '" srcset="' . $srcset . '"/>';
+						}
+						
+						//output each slide
+						$html .= '<div class="slide">';
+							$html .= $image;	
+						$html .= '</div>';
+					}
+					$html .= '</div>';
+				$html .= '</div>';
+				
+			}
+			
+			
+				
+				
+			
+		}
+		
+		return $html;
+	}
+
 	//gets the pagination (next and prev) for a single portfolio element
-	public static function get_portfolio_pagination($post_id = null){
+	public static function get_portfolio_pagination($post_id = null, $optional_args = array()){
 			
 		$instance = self::getInstance();
 		$html = '';
@@ -651,141 +903,6 @@
 		
 	}
 	
-	//public scripts and styles
-	public function enqueue_public_scripts_and_styles(){
-		$directory = plugin_dir_url( __FILE__ );	
-		wp_enqueue_script('el-lightbox-script', $directory . '/js/jquery.magnific-popup.min.js', array('jquery')); 
-		wp_enqueue_style('el-lightbox-style', $directory . '/css/magnific-popup.css'); 
-		wp_enqueue_script('jquery-masonry'); //masonry for flexible layout
-		wp_enqueue_script('isotope', '//unpkg.com/isotope-layout@3.0/dist/isotope.pkgd.js', array('jquery')); //isotope for project filtering
-		wp_enqueue_script('el-portfolio-public-script', $directory . '/js/portfolio_public_scripts.js', array('jquery', 'isotope', 'jquery-masonry', 'el-lightbox-script')); 
-		wp_enqueue_style('el-portfolio-public-styles', $directory . '/css/portfolio_public_styles.css');
-		
-		
-	}
-	
-	//admin only scripts and styles
-	public function enqueue_admin_scripts_and_styles(){
-		$directory = plugin_dir_url( __FILE__ );
-		wp_enqueue_style('fontawesome', '//maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css');
-		wp_enqueue_style( 'wp-color-picker' );
-		wp_enqueue_script('el-portfolio-admin-script', $directory . '/js/portfolio_admin_scripts.js', array('jquery','wp-color-picker')); 
-		wp_enqueue_style('el-portfolio-admin-styles', $directory . '/css/portfolio_admin_styles.css');
-		
-	}
-	
-	//registers theme options via customizer
-	public function register_customizer_settings(){
-		
-	}
-	
-	//registers shortcodes for use
-	public function register_shortcodes(){
-		add_shortcode('portfolio_listing', array($this, 'display_shortcodes'));
-		add_shortcode('portfolio_card', array($this, 'display_shortcodes'));
-		add_shortcode('portfolio_gallery', array($this, 'display_shortcodes'));
-		add_shortcode('portfolio_pagination', array($this, 'display_shortcodes'));
-		add_shortcode('portfolio_categories', array($this, 'display_shortcodes'));
-		add_shortcode('portfolio_tags', array($this, 'display_shortcodes'));
-		add_shortcode('portfolio_microdata', array($this, 'display_shortcodes' ));
-	}
-	
-	//display for the shortcodes
-	public function display_shortcodes($atts, $content = "", $tag){
-			
-		$html = '';
-		
-		//main portfolio listing
-		if($tag == 'portfolio_listing'){
-				
-			//determine shortcode args
-			$args = shortcode_atts(array(
-				'items_per_row'		=> '2'
-			), $atts, $tag);	
-			
-			//get listing of portfolio cards
-			$html .= $this->get_portfolio_listing($args);			
-		}
-		
-		//display a single portfolio card
-		else if($tag == 'portfolio_card'){
-			
-			//determine shortcode args
-			$args = shortcode_atts(array(
-				'id'		=> ''
-			), $atts, $tag);	
-	
-			$html .= $this->get_portfolio_single($args['id']);
-				
-		}
-		
-		//displays gallery for portfolio
-		else if($tag == 'portfolio_gallery'){
-			
-			global $post;
-			
-			//determine shortcode args
-			$args = shortcode_atts(array(
-				'items_per_row'		=> '4'
-			), $atts, $tag);	
-			
-			$html .= $this->get_portfolio_gallery($post->ID, $args);
-		}
-		
-		//displays pagination for next / prev portfolio
-		else if($tag == 'portfolio_pagination'){
-			$html .= $this->get_portfolio_pagination();
-		}
-		
-		//get a listing of portfolio categories, usually displayed on the single page
-		else if($tag == 'portfolio_categories'){
-			
-			global $post;
-			
-			//determine shortcode args
-			$args = shortcode_atts(array(
-				'show_title'		=> 'true'
-			), $atts, $tag);	
-			
-			$html .= $this->get_portfolio_categories($post->ID, $args);
-		}
-		
-		//get a listing of porfolio tags, usually displayed on the single page
-		else if($tag == 'portfolio_tags'){
-			
-			global $post;
-			
-			//determine shortcode args
-			$args = shortcode_atts(array(
-				'show_title'		=> 'true'
-			), $atts, $tag);	
-			
-			$html .= $this->get_portfolio_tags($post->ID, $args); 
-		}
-		//gets the microdata format card for this portfolio. 
-		else if($tag == 'portfolio_microdata'){
-				
-			global $post;
-			
-			//determine shortcode args
-			$args = shortcode_atts(array(
-				'id'		=> ''
-			), $atts, $tag);	
-			
-			$html .= $this->get_portfolio_microdata_information($args['id']);
-
-		}
-				
-				
-		return $html;
-	}
-	
-	//registers custom widgets 
-	public function register_widgets(){
-		
-	}
-	
-	
 	//gets the HTML markup for the portfolio listings
 	public static function get_portfolio_listing($optional_args = array()){
 		
@@ -834,7 +951,7 @@
 	}
 	
 	//given an id, get the HTML output for a single portfolio card
-	public static function get_portfolio_single($post_id){
+	public static function get_portfolio_single($post_id, $optional_args = array()){
 		
 		$html = '';
 		$instance = self::getInstance();
@@ -964,6 +1081,49 @@
 		return $html;
 	}
 		
+	//given a category / term ID, get all portfolios belonging to that category, displayed as a card
+	public static function get_portfolios_for_term($term_id,  $optional_args = array()){
+		
+		$instance = self::getInstance();
+		$html = '';
+		
+	
+		$term = get_term($term_id);
+		//execute only if we have found our term
+		if(($term) && (!is_a($term, 'WP_Error'))){
+			
+
+			$term_args = array(
+				'post_type'		=> $instance->post_type_args['post_type_name'],
+				'post_status'	=> 'publish',
+				'posts_par_page'=> -1,
+				'tax_query'		=> array(
+					array(
+						'taxonomy'	=> $term->taxonomy,
+						'field'		=> 'term_id',
+						'terms'		=> $term->term_id
+					)	
+				)
+			);
+			
+			$portfolios = get_posts($term_args);
+			if($portfolios){
+				$html .= '<div class="portfolio-listing cf">';
+					
+					$classes = isset($optional_args['items_per_row']) ? 'row-of-' . $optional_args['items_per_row'] : 'row-of-2';
+					$html .= '<div class="portfolios row-item ' . $classes .'">';
+					foreach($portfolios as $portfolio){
+						$html .= $instance->get_portfolio_single($portfolio->ID);
+					}	
+					$html .= '</div>';
+				$html .= '</div>';
+			}
+			
+		}
+		
+		return $html;
+	}
+		
 	//gets a listing of categories to be used as filters when displaying the portfolio listing
 	public static function get_portfolio_category_filters(){
 		$html = '';
@@ -992,6 +1152,293 @@
 		
 		return $html;
 	}
+	
+	//get a card based grid listing of all terms belonging to an applicable taxonomy e.g el_categories or el_tags
+	public static function get_portfolio_term_listing($taxonomy_name, $optional_args = array()){
+			
+		$instance = self::getInstance();
+		$html = '';
+		
+		$taxonomy = get_taxonomy($taxonomy_name);
+		if($taxonomy){
+			
+			$term_args = array(
+				'hide_empty'	=> false
+			);
+			
+			//display terms if we have any for taxonomy
+			$terms = get_terms($taxonomy_name, $term_args); 
+			if(($terms) && (!is_a($terms, 'WP_Error'))){
+				$html .= '<div class="portfolios row-item row-of-2">';
+				foreach($terms as $term){
+					$html .= $instance->get_portfolio_single_term($term->term_id);	
+				}
+				$html .= '</div>';
+			}
+			
+		}
+		
+		
+		return $html;
+	}
+	
+	
+	//gets a single portfolio term (category or tag) to display as a card
+	public static function get_portfolio_single_term($term_id, $optional_args = array()){
+	
+		$instance = self::getInstance();
+		$html = '';
+		
+		$term = get_term($term_id);
+		if( ($term) && (!is_a( $term,'WP_Error') ) ){
+				
+			$term_name = $term->name;
+			$term_permalink = get_term_link($term);
+			$term_description = $term->description;
+			$term_image = get_term_meta($term->term_id, 'el_portfolio_term_image', true);
+			$term_text_color = get_term_meta($term->term_id, 'el_portfolio_term_text_color', true);
+			$term_overlay_background_color = get_term_meta($term->term_id, 'el_portfolio_term_overlay_background_color', true);
+			$term_subtitle = get_term_meta($term->term_id, 'el_portfolio_term_subtitle', true);
+			
+
+			//output (
+			$html .= '<article class="portfolio-card grid-item" itemscope itemtype="https://schema.org/Thing">';
+			
+				//link to single term (with microdata)
+				$html .= '<a href="' . $term_permalink . '" title="See all portolios tagged under: ' . $term_name .'" itemprop="url">';
+				
+					$html .= '<div class="inner">';
+				
+						//background image
+						if(!empty($term_image)){
+							
+							$url_medium = wp_get_attachment_image_src($term_image, 'medium', false)[0];
+							$url_large = wp_get_attachment_image_src($term_image, 'large', true)[0];
+				
+							$style = 'background-image: url(' . $url_medium .');'; 
+							$style .= 'background-image: -webkit-image-set(url(' . $url_medium .') 1x, url(' . $url_large .') 2x);';
+							$style .= 'background-image: image-set(url(' . $url_medium .') 1x, url(' . $url_large .') 2x);';	
+							$html .= '<div class="background-image" style="'. $style .'"></div>';
+							
+							
+							//add a metatag for microdata (image)
+							$html .= '<meta itemprop="image" content="' . $url_large . '"></meta>';
+						}
+						
+						//overlay
+						if(!empty($term_overlay_background_color)){
+							$html .= '<div class="overlay" style="background-color: ' . $term_overlay_background_color . ';"></div>';
+						}
+		
+						//main content
+						$style = !empty($term_text_color) ? 'color: ' . $term_text_color .';' : '';
+						$html .= '<div class="content" style="' . $style .'">';
+		
+							//display term name
+							if(!empty($term_name)){
+								$html .= '<h2 class="title" itemprop="name">' . $term_name . '</h2>';
+							}
+							//display subtitle (with microdata)
+							if(!empty($term_subtitle)){
+								$html .= '<h3 class="subtitle" itemprop="description">' . $term_subtitle . '</h3>';
+							}
+							
+							//display excerpt (with microdata)
+							if(!empty($term_description)){
+								$html .= '<p class="excerpt" itemprop="description">' . wp_trim_words($term_description, 25, '...') . '</p>';
+							}
+
+
+							//readmore button
+							$style = !empty($term_text_color) ? 'color: ' . $term_text_color . ';' : '';
+							$style .= !empty($term_text_color) ? 'border: solid 1px ' . $term_text_color . ';' : '';
+							$html .= '<div class="readmore" style="' . $style .'">Read More</div>';
+
+							
+						$html .= '</div>';
+					
+					$html .= '</div>';
+			
+				$html .= '</a>';
+			
+			$html .= '</article>';	
+			
+		}
+		
+		return $html;
+	}
+	
+	
+	//public scripts and styles
+	public function enqueue_public_scripts_and_styles(){
+		$directory = plugin_dir_url( __FILE__ );	
+		
+		wp_enqueue_style('el-portfolio-public-styles', $directory . '/css/portfolio_public_styles.css');
+		wp_enqueue_style('el-portfolio-flexslider-style', '//cdnjs.cloudflare.com/ajax/libs/flexslider/2.6.3/flexslider.min.css');
+		wp_enqueue_style('el-lightbox-style', $directory . '/css/magnific-popup.css'); 
+			
+		wp_enqueue_script('el-lightbox-script', $directory . '/js/jquery.magnific-popup.min.js', array('jquery')); //lightbox gallery
+		wp_enqueue_script('el-portfolio-flexslider-script', '//cdnjs.cloudflare.com/ajax/libs/flexslider/2.6.3/jquery.flexslider-min.js', array('jquery')); 
+		wp_enqueue_script('jquery-masonry'); //masonry for flexible layout
+		wp_enqueue_script('isotope', '//unpkg.com/isotope-layout@3.0/dist/isotope.pkgd.js', array('jquery')); //isotope for project filtering
+		wp_enqueue_script('el-portfolio-public-script', $directory . '/js/portfolio_public_scripts.js', array('jquery', 'isotope', 'jquery-masonry', 'el-lightbox-script','el-portfolio-flexslider-script')); 
+
+	}
+	
+	//admin only scripts and styles
+	public function enqueue_admin_scripts_and_styles(){
+		$directory = plugin_dir_url( __FILE__ );
+		wp_enqueue_style('fontawesome', '//maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css');
+		wp_enqueue_style( 'wp-color-picker' );
+		wp_enqueue_style( 'jquery-ui-sortable' );
+		wp_enqueue_script('el-portfolio-admin-script', $directory . '/js/portfolio_admin_scripts.js', array('jquery','wp-color-picker', 'jquery-ui-sortable')); 
+		wp_enqueue_style('el-portfolio-admin-styles', $directory . '/css/portfolio_admin_styles.css');
+		
+	}
+	
+	//registers theme options via customizer
+	public function register_customizer_settings(){
+		
+	}
+	
+	//registers shortcodes for use
+	public function register_shortcodes(){
+		
+		add_shortcode('portfolio_listing', array($this, 'display_shortcodes')); //get a listing of portfolios (multiple cards)
+		add_shortcode('portfolio_single', array($this, 'display_shortcodes')); //gets a single portfolio card
+		add_shortcode('portfolio_gallery', array($this, 'display_shortcodes')); //gets the gallery for a single portfolio
+		add_shortcode('portfolio_pagination', array($this, 'display_shortcodes')); //gets the pagination for use on a single portfolio
+		add_shortcode('portfolio_categories', array($this, 'display_shortcodes')); //gets the categories associated with a single portfolio
+		add_shortcode('portfolio_tags', array($this, 'display_shortcodes')); //gets the tags associated with a single portfolio
+		add_shortcode('portfolio_microdata', array($this, 'display_shortcodes' )); //gets a schema.org element for a single portfolio
+		add_shortcode('portfolio_gallery_slider', array($this, 'display_shortcodes')); //gets the gallery slider for a single portfolio
+		add_shortcode('portfolio_term_listing', array($this, 'display_shortcodes')); //gets a grid listing of all terms in a taxonomy (e.g categories)
+		add_shortcode('portfolio_listing_for_term', array($this, 'display_shortcodes')); //displays portfolis for a single term
+		
+	}
+	
+	//display for the shortcodes
+	public function display_shortcodes($atts, $content = "", $tag){
+			
+		$html = '';
+		
+		//main portfolio listing
+		if($tag == 'portfolio_listing'){
+				
+			//determine shortcode args
+			$args = shortcode_atts(array(
+				'items_per_row'		=> '2'
+			), $atts, $tag);	
+			
+			//get listing of portfolio cards
+			$html .= $this->get_portfolio_listing($args);			
+		}
+		
+		//display a single portfolio card
+		else if($tag == 'portfolio_single'){
+			
+			//determine shortcode args
+			$args = shortcode_atts(array(
+				'id'		=> ''
+			), $atts, $tag);	
+	
+			$html .= $this->get_portfolio_single($args['id']);
+				
+		}
+		
+		//displays gallery for portfolio
+		else if($tag == 'portfolio_gallery'){
+			
+			global $post;
+
+			$html .= $this->get_portfolio_gallery($post->ID);
+		}
+		
+		//gets the gallery slider
+		else if($tag == 'portfolio_gallery_slider'){
+			global $post;
+				
+			$html .= $this->get_portfolio_gallery_slider($post->ID);
+		}
+		
+		//displays pagination for next / prev portfolio
+		else if($tag == 'portfolio_pagination'){
+			$html .= $this->get_portfolio_pagination();
+		}
+		
+		//get a listing of portfolio categories, usually displayed on the single page
+		else if($tag == 'portfolio_categories'){
+			
+			global $post;
+			
+			//determine shortcode args
+			$args = shortcode_atts(array(
+				'show_title'		=> 'true'
+			), $atts, $tag);	
+			
+			$html .= $this->get_portfolio_categories($post->ID, $args);
+		}
+		
+		//get a listing of porfolio tags, usually displayed on the single page
+		else if($tag == 'portfolio_tags'){
+			
+			global $post;
+			
+			//determine shortcode args
+			$args = shortcode_atts(array(
+				'show_title'		=> 'true'
+			), $atts, $tag);	
+			
+			$html .= $this->get_portfolio_tags($post->ID, $args); 
+		}
+		//gets the microdata format card for this portfolio. 
+		else if($tag == 'portfolio_microdata'){
+				
+			global $post;
+			
+			//determine shortcode args
+			$args = shortcode_atts(array(
+				'id'		=> ''
+			), $atts, $tag);	
+			
+			$html .= $this->get_portfolio_microdata_information($args['id']);
+
+		}
+		//get a grid listing of all terms in a taxonomy (category / tags)
+		else if($tag == 'portfolio_term_listing'){
+			
+			$args = shortcode_atts(array(
+				'taxonomy_name'	=> 'el_portfolio_category'
+			), $atts, $tag);
+			
+			//get a listing of terms for tax (default categories)
+			$html .= $this->get_portfolio_term_listing($args['taxonomy_name']);
+		}
+		//gets all portfolios belonging to a set term id (category or tag term)
+		else if($tag == 'portfolio_listing_for_term'){
+			
+			$args = shortcode_atts(array(
+				'term_id'	=> ''
+			), $atts, $tag);
+			
+			//get a listing of terms for tax (default categories)
+			$html .= $this->get_portfolios_for_term($args['term_id']);
+		}
+		
+		
+		
+				
+				
+		return $html;
+	}
+	
+	//registers custom widgets 
+	public function register_widgets(){
+		
+	}
+	
+	
+
 	
 	//sets / returns instance
 	public static function getInstance(){

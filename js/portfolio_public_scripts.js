@@ -1,5 +1,15 @@
 jQuery(document).ready(function($){
 
+	//initialize flexslider
+	 $('.portfolio-gallery-slider').flexslider({
+	 	selector: '.slides > .slide',
+	    animation: "slide",
+	    smoothHeight: true,
+	    slideshowSpeed: 5000,
+	    animationSpeed: 400,
+	    pauseOnHover: true
+	  });
+  
 	//initialize image popups
 	$('.lightbox-element').magnificPopup({
 		type: 'image',
