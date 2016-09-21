@@ -4,7 +4,7 @@
  * Plugin URI:  https://elevate360.com.au/plugins
  * Description: Showcases portfolios with an easy to use admin back-end. Contains a filterable listing page for portfolios plus a single portfolio showcase. Use a combination of
  * either shortcodes or action hooks to output content for your single portfolio pages. All portfolios are enriched with schema.org metadata  
- * Version:     1.1.0
+ * Version:     1.1.1
  * Author:      Simon Codrington
  * Author URI:  https://simoncodrington.com.au
  * Text Domain: elevate-portfolios
@@ -594,8 +594,8 @@
 				
 				//image
 				if(!empty($portfolio_archive_image)){
-					$url_large = wp_get_attachment_image_src($portfolio_archive_image, 'large', true)[0];
-					$html .= '<meta itemprop="image" content="' . $url_large . '"></meta>';
+					$url = wp_get_attachment_image_src($portfolio_archive_image, apply_filters('el_portfolio_archive_image_size','large'), true)[0];
+					$html .= '<meta itemprop="image" content="' . $url . '"></meta>';
 				}
 				
 				//categories
@@ -677,8 +677,8 @@
 
 				foreach($portfolio_gallery_images as $image_id){
 					
-					$url_medium = wp_get_attachment_image_src($image_id, 'medium', false)[0];
-					$url_large = wp_get_attachment_image_src($image_id, 'large', true)[0];
+					$url_medium = wp_get_attachment_image_src($image_id, apply_filters('el_portfolio_gallery_small_image_size', 'medium'), false)[0];
+					$url_large = wp_get_attachment_image_src($image_id, apply_filters('el_portfolio_gallery_large_image_size', 'large'), true)[0];
 
 					//determine output for images
 					$image = '';
@@ -687,9 +687,9 @@
 					
 					if($portfolio_gallery_image_type == 'background' || empty($portfolio_gallery_image_type)){
 						$style = 'background-image: url(' . $url_medium .');'; 
-						$style .= 'background-image: -webkit-image-set(url(' . $url_medium .') 1x, url(' . $url_large .') 2x);';
-						$style .= 'background-image: image-set(url(' . $url_medium .') 1x, url(' . $url_large .') 2x);';	
 						$image .= '<div class="background-image" style="'. $style .'"></div>';
+	
+						
 					}else{
 						$srcset = $url_medium . ' 1x, ' . $url_large . ' 2x'; 
 						$image .= '<img src="' . $url_medium . '" srcset="' . $srcset . '"/>';
@@ -745,23 +745,19 @@
 					$html .= '<div class="slides">';
 					foreach($portfolio_gallery_slider_images as $image_id){
 						
-						$url_medium = wp_get_attachment_image_src($image_id, 'medium', false)[0];
-						$url_large = wp_get_attachment_image_src($image_id, 'large', true)[0];
+						$url= wp_get_attachment_image_src($image_id, apply_filters('el_porfolio_gallery_slider_image_size', 'large'), false)[0];
 					
 						//determine output for images
 						$image = '';
 						if($portfolio_gallery_slider_image_type == 'background' || empty($portfolio_gallery_slider_image_type)){
-							$style = 'background-image: url(' . $url_medium .');'; 
-							$style .= 'background-image: -webkit-image-set(url(' . $url_medium .') 1x, url(' . $url_large .') 2x);';
-							$style .= 'background-image: image-set(url(' . $url_medium .') 1x, url(' . $url_large .') 2x);';	
+							$style = 'background-image: url(' . $url .');'; 
 							
 							$image .= '<div class="inner-wrap aspect-16-9">';
 								$image .= '<div class="background-image" style="'. $style .'"></div>';
 							$image .= '</div>';
 							
 						}else{
-							$srcset = $url_medium . ' 1x, ' . $url_large . ' 2x'; 
-							$image .= '<img src="' . $url_medium . '" srcset="' . $srcset . '"/>';
+							$image .= '<img src="' . $url . '"/>';
 						}
 						
 						//output each slide
@@ -913,7 +909,7 @@
 		
 		$post_args = array(
 			'post_type'			=> $post_type,
-			'posts_per_page'	=> 5,
+			'posts_per_page'	=> -1,
 			'post_status'		=> 'publish',
 			'orderby'			=> 'meta_value_num',
 			'order'				=> 'ASC',
@@ -943,6 +939,10 @@
 				
 			$html .= '</div>';
 			
+		}else{
+			$html .= '<div class="portfolio-listing no-portfolios">';
+			$html .= '<strong>Sorry, but there are no portfolios to display</strong>';
+			$html .= '</div>';
 		}
 		
 		
@@ -1000,17 +1000,14 @@
 						//background image
 						if(!empty($portfolio_archive_image)){
 							
-							$url_medium = wp_get_attachment_image_src($portfolio_archive_image, 'medium', false)[0];
-							$url_large = wp_get_attachment_image_src($portfolio_archive_image, 'large', true)[0];
-				
-							$style = 'background-image: url(' . $url_medium .');'; 
-							$style .= 'background-image: -webkit-image-set(url(' . $url_medium .') 1x, url(' . $url_large .') 2x);';
-							$style .= 'background-image: image-set(url(' . $url_medium .') 1x, url(' . $url_large .') 2x);';	
+							$url = wp_get_attachment_image_src($portfolio_archive_image, apply_filters('el_portfolio_archive_image_size', 'medium'), false)[0];
+
+							$style = 'background-image: url(' . $url .');'; 	
 							$html .= '<div class="background-image" style="'. $style .'"></div>';
 							
 							
 							//add a metatag for microdata (image)
-							$html .= '<meta itemprop="image" content="' . $url_large . '"></meta>';
+							$html .= '<meta itemprop="image" content="' . $url . '"></meta>';
 						}
 						
 						//overlay
@@ -1084,6 +1081,7 @@
 	//given a category / term ID, get all portfolios belonging to that category, displayed as a card
 	public static function get_portfolios_for_term($term_id,  $optional_args = array()){
 		
+		
 		$instance = self::getInstance();
 		$html = '';
 		
@@ -1117,6 +1115,10 @@
 					}	
 					$html .= '</div>';
 				$html .= '</div>';
+			}else{
+				$html .= '<div class="portfolios no-portfolios">';
+					$html .= '<strong>Sorry there are no portfolios to display</strong>';
+				$html .= '</div>';
 			}
 			
 		}
@@ -1136,8 +1138,9 @@
 		$terms = get_terms('el_portfolio_category', $term_args);
 		
 		if($terms){
+			$default_text = apply_filters('el_portfolio_all_filter_text', 'All');
 			$html .= '<article class="portfolio-filter portfolio-terms">';
-			$html .= '<div class="term term-reset active">No Filter</div>';
+			$html .= '<div class="term term-reset active">' . $default_text .'</div>';
 			foreach($terms as $term){
 				
 				$name = $term->name;
@@ -1212,17 +1215,14 @@
 						//background image
 						if(!empty($term_image)){
 							
-							$url_medium = wp_get_attachment_image_src($term_image, 'medium', false)[0];
-							$url_large = wp_get_attachment_image_src($term_image, 'large', true)[0];
-				
-							$style = 'background-image: url(' . $url_medium .');'; 
-							$style .= 'background-image: -webkit-image-set(url(' . $url_medium .') 1x, url(' . $url_large .') 2x);';
-							$style .= 'background-image: image-set(url(' . $url_medium .') 1x, url(' . $url_large .') 2x);';	
+							$url = wp_get_attachment_image_src($term_image, apply_filters('el_portfolio_term_image_size','medium'), false)[0];
+
+							$style = 'background-image: url(' . $url .');'; 
 							$html .= '<div class="background-image" style="'. $style .'"></div>';
 							
 							
 							//add a metatag for microdata (image)
-							$html .= '<meta itemprop="image" content="' . $url_large . '"></meta>';
+							$html .= '<meta itemprop="image" content="' . $url . '"></meta>';
 						}
 						
 						//overlay
