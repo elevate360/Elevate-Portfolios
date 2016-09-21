@@ -78,8 +78,39 @@ function register_new_metafields($html){
 	
 	return $html;
 }
+```
 
+##Additional filters
+Below are some of the filters that can be used to adjust default values for the plugin
+
+
+**Single portfolio gallery filters**
+el_portfolio_gallery_small_image_size
+el_portfolio_gallery_large_image_size
+
+**Single portfolio gallery slider filters**
+el_porfolio_gallery_slider_image_size
+
+**Single portfolio listing filters**
+el_portfolio_archive_image_size
+
+**Single term listing filters**
+el_portfolio_term_image_size
+
+**Misc filters**
+el_portfolio_all_filter_text
+
+You can hook into these in your child theme to adjust how the plugin will work. For example if you wanted the galleries to output larger resolution images you could 
+hook into the `el_portfolio_gallery_small_image_size` filter so that when the gallery grid is built it uses a higher quality image.
 
 ```
+function change_default_portfolio_gallery_small_image_size($size){
+	$size = 'large';
+	return $size;
+}
+add_filter('el_portfolio_gallery_small_image_size', 'change_default_portfolio_gallery_small_image_size');
+
+```
+
 
 
