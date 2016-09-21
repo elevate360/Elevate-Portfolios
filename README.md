@@ -99,6 +99,8 @@ el_portfolio_term_image_size
 
 **Misc filters**
 el_portfolio_all_filter_text
+el_portfolio_previous_text
+el_portfolio_next_text
 
 You can hook into these in your child theme to adjust how the plugin will work. For example if you wanted the galleries to output larger resolution images you could 
 hook into the `el_portfolio_gallery_small_image_size` filter so that when the gallery grid is built it uses a higher quality image.
