@@ -4,7 +4,7 @@
  * Plugin URI:  https://elevate360.com.au/plugins
  * Description: Showcases portfolios with an easy to use admin back-end. Contains a filterable listing page for portfolios plus a single portfolio showcase. Use a combination of
  * either shortcodes or action hooks to output content for your single portfolio pages. All portfolios are enriched with schema.org metadata  
- * Version:     1.1.2
+ * Version:     1.1.3
  * Author:      Simon Codrington
  * Author URI:  https://simoncodrington.com.au
  * Text Domain: elevate-portfolios
@@ -412,7 +412,7 @@
 		add_action('el_display_portfolio_microdata_information', array($this, 'display_portfolio_microdata_information'), 10, 2); //displays the schema.org microdata for a single portfolio
 		add_action('el_display_portfolios_for_term', array($this, 'display_portfolios_for_term'), 10, 2); //displays a listing of portfolios that belong to a single term ID, used for tax listings
 		add_action('el_display_portfolio_term_listing', array($this, 'display_portfolio_term_listing'), 10, 2); //displays a listing of portfolio terms (categories / tags) in a grid. 
-		
+		add_action('el_display_portfolio_term_microdata_information', array($this, 'display_portfolio_term_microdata_information')); //displays a schema.org markup element for a term (category / tag)
 		
 		//TODO: Add universal settings to customizer
 		//add_action('customize_register', array($this, 'register_customizer_settings')); //hooks into theme customizer for options
@@ -496,8 +496,9 @@
 		$html = '';
 		
 		$post = get_post($post_id);
-		$html .= $instance->get_portfolio_microdata_information($post->ID, $optional_args);
 		
+		$html .= $instance->get_portfolio_microdata_information($post_id, $optional_args);
+
 		echo $html;
 	}
 
@@ -514,6 +515,7 @@
 		
 	}
 
+	//displays a listing of terms (linking to an archive page to show applicable portfolios)
 	public static function display_portfolio_term_listing($taxonomy_name, $optional_args = array()){
 			
 		$instance = self::getInstance();
@@ -522,6 +524,65 @@
 		$html .= $instance->get_portfolio_term_listing($taxonomy_name, $optional_args);
 		
 		echo $html;
+	}
+	
+	//displays microdata info for a single term. To be used on archive pages 
+	public static function display_portfolio_term_microdata_information($term_id, $optional_args = array()){
+		$instance = self::getInstance();
+		$html = '';
+		
+		$html .= $instance->get_portfolio_term_microdata_information($term_id, $optional_args);
+		
+		echo $html;
+	}
+
+	//gets the microdata for a single product term (category or tag)
+	public static function get_portfolio_term_microdata_information($term_id, $optional_args = array()){
+
+		$instance = self::getInstance();
+		$html = '';
+		
+		if($term_id){
+			$term = get_term($term_id);
+			if( ($term) && (!is_a( $term,'WP_Error') ) ){
+					
+				$term_name = $term->name;
+				$term_permalink = get_term_link($term);
+				$term_description = $term->description;
+				$term_image = get_term_meta($term->term_id, 'el_portfolio_term_image', true);
+				$term_text_color = get_term_meta($term->term_id, 'el_portfolio_term_text_color', true);
+				$term_overlay_background_color = get_term_meta($term->term_id, 'el_portfolio_term_overlay_background_color', true);
+				$term_subtitle = get_term_meta($term->term_id, 'el_portfolio_term_subtitle', true);
+			
+				//build schema markup
+				$html .= '<div itemscope itemtype="https://schema.org/Thing">';
+					
+					//title
+					if(!empty($term_name)){
+						$html .= '<meta itemprop="name" content="' . $term_name . '"></meta>';
+					}
+					
+					//description
+					if(!empty($term_description)){
+						$html .= '<meta itemprop="description" content="' . $term_description . '"></meta>';
+					}
+					
+					//image
+					if(!empty($term_image)){
+						$url = wp_get_attachment_image_src($term_image, apply_filters('el_portfolio_archive_image_size','large'), true)[0];
+						$html .= '<meta itemprop="image" content="' . $url . '"></meta>';
+					}
+					
+					$html .= '<meta itemprop="url" content=" ' . $term_permalink . '"></meta>';
+					
+				$html .= '</div>';
+			}
+			
+		}
+		
+		
+		return $html;
+		
 	}
 
 	//gets the microdata in the form of a service card 
@@ -1316,6 +1377,7 @@
 		add_shortcode('portfolio_gallery_slider', array($this, 'display_shortcodes')); //gets the gallery slider for a single portfolio
 		add_shortcode('portfolio_term_listing', array($this, 'display_shortcodes')); //gets a grid listing of all terms in a taxonomy (e.g categories)
 		add_shortcode('portfolio_listing_for_term', array($this, 'display_shortcodes')); //displays portfolis for a single term
+		add_shortcode('portfolio_term_microdata_information', array($this, 'display_shortcodes')); //displays the microdata format for a single term (category / term)
 		
 	}
 	
@@ -1406,6 +1468,17 @@
 			$html .= $this->get_portfolio_microdata_information($args['id']);
 
 		}
+		//microdata for a given term
+		else if($tag == 'portfolio_term_microdata_information'){
+		
+			//determine shortcode args
+			$args = shortcode_atts(array(
+				'term_id'		=> ''
+			), $atts, $tag);	
+			
+			$html .= $this->get_portfolio_term_microdata_information($args['term_id']);
+		}
+		
 		//get a grid listing of all terms in a taxonomy (category / tags)
 		else if($tag == 'portfolio_term_listing'){
 			

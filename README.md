@@ -7,22 +7,26 @@ portfolio will be displayed on it's listing and single pages.
 The plugin has been built with extensibility in mind. Listed below are the shortcodes / action hooks applicable
 
 **Shortcodes (to go into your content area)**
-	- [portfolio_card]
-	- [portfolio_listing]
-	- [portfolio_gallery]
-	- [portfolio_pagination]
-	- [portfolio_categories]
-	- [portfolio_tags]
-	- [portfolio_microdata]
+
+ - [portfolio_card]
+ - [portfolio_listing]
+ - [portfolio_gallery]
+ - [portfolio_pagination]
+ - [portfolio_categories]
+ - [portfolio_tags]
+ - [portfolio_microdata]
+ - [el_display_portfolio_term_microdata_information]
 
 **WordPress action hooks (to go in your child theme files)**
-	- el_display_portfolio_listing
-	- el_display_portfolio_categories
-	- el_display_portfolio_single
-	- el_display_portfolio_tags
-	- el_display_portfolio_pagination
-	- el_display_portfolio_microdata_information
-	- el_display_portfolio_gallery
+
+ - el_display_portfolio_listing
+ - el_display_portfolio_categories
+ - el_display_portfolio_single
+ - el_display_portfolio_tags
+ - el_display_portfolio_pagination
+ - el_display_portfolio_microdata_information
+ - el_display_portfolio_gallery
+ - el_display_portfolio_term_microdata_information
 
 ###How to use in themes
 The best way to use this plugin is to integrate it into your theme. 
@@ -85,22 +89,27 @@ Below are some of the filters that can be used to adjust default values for the 
 
 
 **Single portfolio gallery filters**
-el_portfolio_gallery_small_image_size
-el_portfolio_gallery_large_image_size
+
+ - el_portfolio_gallery_small_image_size
+ - el_portfolio_gallery_large_image_size
 
 **Single portfolio gallery slider filters**
-el_porfolio_gallery_slider_image_size
+
+ - el_porfolio_gallery_slider_image_size
 
 **Single portfolio listing filters**
-el_portfolio_archive_image_size
+
+ - el_portfolio_archive_image_size
 
 **Single term listing filters**
-el_portfolio_term_image_size
+
+ - el_portfolio_term_image_size
 
 **Misc filters**
-el_portfolio_all_filter_text
-el_portfolio_previous_text
-el_portfolio_next_text
+
+ - el_portfolio_all_filter_text
+ - el_portfolio_previous_text
+ - el_portfolio_next_text
 
 You can hook into these in your child theme to adjust how the plugin will work. For example if you wanted the galleries to output larger resolution images you could 
 hook into the `el_portfolio_gallery_small_image_size` filter so that when the gallery grid is built it uses a higher quality image.
