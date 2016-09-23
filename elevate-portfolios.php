@@ -1061,7 +1061,7 @@
 					$html .= '<div class="inner">';
 				
 						//hook to output additional content before the main card content
-						$html = apply_filters('el_portfolio_listing_card_before_content', $html);
+						$html = apply_filters('el_portfolio_listing_card_before_content', $html, $post_id);
 				
 						//background image
 						if(!empty($portfolio_archive_image)){
@@ -1279,7 +1279,7 @@
 					$html .= '<div class="inner">';
 					
 						//hook to output additional content before the main card content
-						$html = apply_filters('el_portfolio_term_card_before_content', $html);
+						$html = apply_filters('el_portfolio_term_card_before_content', $html, $term_id);
 				
 						//background image
 						if(!empty($term_image)){
