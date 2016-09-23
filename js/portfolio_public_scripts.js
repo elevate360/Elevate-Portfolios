@@ -32,8 +32,13 @@
 		//isotope for portfolio filtering
 		$('.portfolios').isotope({
 			itemSelector: '.portfolio-card',
-			layoutMode: 'fitRows'
+			layoutMode: 'masonry',
+			stagger: 30,
+			masonry: {
+				columnWidth: '.masonry-sizer'
+			}
 		});
+		
 		
 		//on click, filter by term ID
 		$('.portfolio-filter').on('click', '.term', function(){
@@ -63,6 +68,8 @@
 		$('.portolio-gallery.traditional').masonry({
 			itemSelector: '.portfolio-image',
 		});
+		
+		
 	});
 	
 	

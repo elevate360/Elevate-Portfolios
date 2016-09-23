@@ -4,7 +4,7 @@
  * Plugin URI:  https://elevate360.com.au/plugins
  * Description: Showcases portfolios with an easy to use admin back-end. Contains a filterable listing page for portfolios plus a single portfolio showcase. Use a combination of
  * either shortcodes or action hooks to output content for your single portfolio pages. All portfolios are enriched with schema.org metadata  
- * Version:     1.1.4
+ * Version:     1.1.5
  * Author:      Simon Codrington
  * Author URI:  https://simoncodrington.com.au
  * Text Domain: elevate-portfolios
@@ -168,7 +168,51 @@
 				'description'	=> 'Colour of the title, subtitle, description and readmore elements when this term is displayed in it\'s card listing form',
 				'taxonomy_name'	=> 'el_portfolio_tags',
 				'type'			=> 'color'
-			)
+			),
+			array(
+				'id'			=> 'el_portfolio_term_featured',
+				'title'			=> 'Term Featured',
+				'description'	=> 'Determines if this term will be \'featured\' meaning it will be styled twice as big as other terms when displayed in the listing.',
+				'type'			=> 'select',
+				'taxonomy_name'	=> 'el_portfolio_category',
+				'args'			=> array(
+					'options'		=> array(
+						array(
+							'id'		=> 'false',
+							'title'		=> "False"
+						),
+						array(
+							'id'		=> 'true',
+							'title'		=> "True"
+						
+						)
+					)
+				)
+			),
+			array(
+				'id'			=> 'el_portfolio_term_featured',
+				'title'			=> 'Term Featured',
+				'description'	=> 'Determines if this term will be \'featured\' meaning it will be styled twice as big as other terms when displayed in the listing.',
+				'type'			=> 'select',
+				'taxonomy_name'	=> 'el_portfolio_tags',
+				'args'			=> array(
+					'options'		=> array(
+						array(
+							'id'		=> 'false',
+							'title'		=> "False"
+						),
+						array(
+							'id'		=> 'true',
+							'title'		=> "True"
+						
+						)
+					)
+				)
+			),
+			
+			
+			
+			
 			
 			
 			
@@ -296,6 +340,28 @@
 				'type'			=> 'number',
 				'meta_box_id'	=> 'listing_portfolio_metabox'
 			),
+			array(
+				'id'			=> 'portfolio_archive_featured',
+				'title'			=> 'Portfolio Archive Featured',
+				'description'	=> 'Determines if this element will be \'featured\' meaning it will be styled twice as big as other portfolios when displayed in the listing.',
+				'type'			=> 'select',
+				'meta_box_id'	=> 'listing_portfolio_metabox',
+				'args'			=> array(
+					'options'		=> array(
+						array(
+							'id'		=> 'false',
+							'title'		=> "False"
+						),
+						array(
+							'id'		=> 'true',
+							'title'		=> "True"
+						
+						)
+					)
+				)
+			),
+			
+			
 			
 			//single page gallery
 			array(
@@ -520,7 +586,7 @@
 			
 		$instance = self::getInstance();
 		$html = '';
-		
+
 		$html .= $instance->get_portfolio_term_listing($taxonomy_name, $optional_args);
 		
 		echo $html;
@@ -981,14 +1047,13 @@
 		
 		$posts = get_posts($post_args);
 		
-
 		if($posts){
 			
 			
 			$html .= '<div class="portfolio-listing cf">';
 			
 				//get a listing of category terms for filters
-				$html .= self::get_portfolio_category_filters();
+				$html .= self::get_portfolio_category_filters($optional_args);
 			
 				$classes = isset($optional_args['items_per_row']) ? 'row-of-' . $optional_args['items_per_row'] : 'row-of-2';
 				$html .= '<div class="portfolios row-item ' . $classes .'">';
@@ -998,6 +1063,10 @@
 					$html .= $instance::get_portfolio_single($post->ID);
 					
 				}
+				
+				//output sizer (determines the default width of each element in the masonry grid)
+				$html .= '<div class="masonry-sizer ' . $classes .'"></div>';
+				
 				$html .= '</div>';
 				
 			$html .= '</div>';
@@ -1033,6 +1102,7 @@
 			$portfolio_archive_show_categories = get_post_meta($post_id, 'portfolio_archive_show_categories', true);
 			$portfolio_archive_overlay_color = get_post_meta($post_id, 'portfolio_archive_overlay_color', true);
 			$portfolio_archive_text_color = get_post_meta($post_id, 'portfolio_archive_text_color', true);
+			$portfolio_archive_featured = get_post_meta($post_id , 'portfolio_archive_featured', true);
 
 			$portfolio_categories = wp_get_post_terms($post_id, 'el_portfolio_category');
 			$portfolio_category_classes = '';
@@ -1052,8 +1122,16 @@
 				}
 			}
 			
+			//featured makes the portfolio twice as big
+			$featured = '';
+			if(!empty($portfolio_archive_featured)){
+				if($portfolio_archive_featured == 'true'){
+					$featured = 'featured';
+				}
+			}
+			
 			//output (with category classes appended for filtering)
-			$html .= '<article class="portfolio-card grid-item' . $portfolio_category_classes .'" itemscope itemtype="http://schema.org/Service">';
+			$html .= '<article class="portfolio-card grid-item ' . $portfolio_archive_featured . ' ' . $portfolio_category_classes .'" itemscope itemtype="http://schema.org/Service">';
 			
 				//link to single portfolio (with microdata)
 				$html .= '<a href="' . $post_permalink . '" title="Find out more about this project" itemprop="url">';
@@ -1193,14 +1271,23 @@
 	}
 		
 	//gets a listing of categories to be used as filters when displaying the portfolio listing
-	public static function get_portfolio_category_filters(){
+	public static function get_portfolio_category_filters($optional_args = array()){
+			
 		$html = '';
 		$instance = self::getInstance();
 		
 		
+		
 		$term_args = array(
-			'hide_empty' => false
+			'hide_empty' => false,
 		);
+		//determine if we want to display the top level categories only
+		if(isset($optional_args['top_level_only'])){
+			if($optional_args['top_level_only'] == 'true'){
+				$term_args['parent'] = 0;
+			}	
+		}
+		
 		$terms = get_terms('el_portfolio_category', $term_args);
 		
 		if($terms){
@@ -1237,11 +1324,18 @@
 			
 			//display terms if we have any for taxonomy
 			$terms = get_terms($taxonomy_name, $term_args); 
+
+			$classes = isset($optional_args['items_per_row']) ? 'row-of-' . $optional_args['items_per_row'] : 'row-of-2';
 			if(($terms) && (!is_a($terms, 'WP_Error'))){
-				$html .= '<div class="portfolios row-item row-of-2">';
+				$html .= '<div class="portfolios row-item ' . $classes .'">';
+				
 				foreach($terms as $term){
 					$html .= $instance->get_portfolio_single_term($term->term_id);	
 				}
+				
+				//output sizer (determines the default width of each element in the masonry grid)
+				$html .= '<div class="masonry-sizer ' . $classes .'"></div>';
+				
 				$html .= '</div>';
 			}
 			
@@ -1257,8 +1351,9 @@
 	
 		$instance = self::getInstance();
 		$html = '';
-		
+	
 		$term = get_term($term_id);
+		
 		if( ($term) && (!is_a( $term,'WP_Error') ) ){
 				
 			$term_name = $term->name;
@@ -1268,10 +1363,18 @@
 			$term_text_color = get_term_meta($term->term_id, 'el_portfolio_term_text_color', true);
 			$term_overlay_background_color = get_term_meta($term->term_id, 'el_portfolio_term_overlay_background_color', true);
 			$term_subtitle = get_term_meta($term->term_id, 'el_portfolio_term_subtitle', true);
+			$term_featured = get_term_meta($term->term_id, 'el_portfolio_term_featured', true);
 			
+			//featured makes the portfolio twice as big
+			$featured = '';
+			if(!empty($term_featured)){
+				if($term_featured == 'true'){
+					$featured = 'featured';
+				}
+			}
 
-			//output (
-			$html .= '<article class="portfolio-card grid-item" itemscope itemtype="https://schema.org/Thing">';
+			//output 
+			$html .= '<article class="portfolio-card grid-item ' . $featured .'" itemscope itemtype="https://schema.org/Thing">';
 			
 				//link to single term (with microdata)
 				$html .= '<a href="' . $term_permalink . '" title="See all portolios tagged under: ' . $term_name .'" itemprop="url">';
@@ -1489,11 +1592,12 @@
 		else if($tag == 'portfolio_term_listing'){
 			
 			$args = shortcode_atts(array(
-				'taxonomy_name'	=> 'el_portfolio_category'
+				'taxonomy_name'	=> 'el_portfolio_category',
+				'items_per_row'	=> '2'
 			), $atts, $tag);
 			
 			//get a listing of terms for tax (default categories)
-			$html .= $this->get_portfolio_term_listing($args['taxonomy_name']);
+			$html .= $this->get_portfolio_term_listing($args['taxonomy_name'], $args);
 		}
 		//gets all portfolios belonging to a set term id (category or tag term)
 		else if($tag == 'portfolio_listing_for_term'){

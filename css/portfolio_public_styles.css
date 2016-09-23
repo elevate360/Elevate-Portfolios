@@ -147,10 +147,29 @@
 .grid-item{
 	float: left;
 	width: 100%;
+	padding: 10px;
 }
 .grid-item .inner{
-	margin-bottom: 20px;
+	overflow: hidden;
 }
+
+/*sizing element, used to tell masonry how wide each column is*/
+.masonry-sizer.row-of-1{
+	width: 100%;
+}
+.masonry-sizer.row-of-2{
+	width: 50%;
+}
+.masonry-sizer.row-of-3{
+	width: 33.33%;	
+}
+.masonry-sizer.row-of-4{
+	width: 25%;
+}
+.masonry-sizer.row-of-5{
+	width: 20%;	
+}
+
 
 
 /*---Portfolio Navigation--*/
@@ -288,14 +307,12 @@
 	}
 	/*universal margings for spacing*/
 	.grid-item .inner{
-		margin: 0px 7.5px 15px 7.5px;
 		position: relative;
 	}
 	.grid-item img{
 		width: 100%;
 		height: auto;
 	}
-	
 	
 	/*Row of five*/
 	.row-item.row-of-5 .grid-item{
@@ -316,6 +333,25 @@
 	.row-item.row-of-2 .grid-item{
 		width: 50%;
 	}
+	
+	
+	/*--Featured elements (twice as big as normal)--*/
+	.row-item.row-of-1 .grid-item.featured{
+		width: 100%;
+	}
+	.row-item.row-of-2 .grid-item.featured{
+		width: 100%;
+	}
+	.row-item.row-of-3 .grid-item.featured{
+		width: 66.66%;
+	}
+	.row-item.row-of-4 .grid-item.featured{
+		width: 50%;
+	}
+	.row-item.row-of-5 .grid-item.featured{
+		width: 40%;
+	}
+	
 	
 	/*---Portfolio Navigation--*/
 	.portfolio-pagination a{
