@@ -57,6 +57,12 @@
     justify-content: center;
     align-content: center;
     flex-direction: column;
+   -ms-flex-wrap: nowrap;
+    -moz-flex-wrap: nowrap;
+    -webkit-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    -moz-transform: translate3d(0%, 25%, 1px);
+    -webkit-transform: translate3d(0%, 25%, 1px);
     transform: translate3d(0%, 25%, 1px);
     transition: all 300ms ease-out;
     opacity: 0;

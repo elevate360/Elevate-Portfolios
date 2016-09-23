@@ -4,7 +4,7 @@
  * Plugin URI:  https://elevate360.com.au/plugins
  * Description: Showcases portfolios with an easy to use admin back-end. Contains a filterable listing page for portfolios plus a single portfolio showcase. Use a combination of
  * either shortcodes or action hooks to output content for your single portfolio pages. All portfolios are enriched with schema.org metadata  
- * Version:     1.1.3
+ * Version:     1.1.4
  * Author:      Simon Codrington
  * Author URI:  https://simoncodrington.com.au
  * Text Domain: elevate-portfolios
@@ -1060,6 +1060,9 @@
 				
 					$html .= '<div class="inner">';
 				
+						//hook to output additional content before the main card content
+						$html = apply_filters('el_portfolio_listing_card_before_content', $html);
+				
 						//background image
 						if(!empty($portfolio_archive_image)){
 							
@@ -1274,6 +1277,9 @@
 				$html .= '<a href="' . $term_permalink . '" title="See all portolios tagged under: ' . $term_name .'" itemprop="url">';
 				
 					$html .= '<div class="inner">';
+					
+						//hook to output additional content before the main card content
+						$html = apply_filters('el_portfolio_term_card_before_content', $html);
 				
 						//background image
 						if(!empty($term_image)){

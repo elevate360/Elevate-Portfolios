@@ -4,31 +4,39 @@ Plugin that facilitates the creation and display of portfolios. Creates a new 'p
 Download the following files and upload them to your plugin repository. When activated you will have a new 'portfolio' content type that lets you outline how your 
 portfolio will be displayed on it's listing and single pages.
 
-The plugin has been built with extensibility in mind. Listed below are the shortcodes / action hooks applicable
+The plugin has been built with extensibility in mind. 
+
+##Shortcodes
+
+These can be used in your content area to display elements
 
 **Shortcodes (to go into your content area)**
 
- - [portfolio_card]
- - [portfolio_listing]
- - [portfolio_gallery]
- - [portfolio_pagination]
- - [portfolio_categories]
- - [portfolio_tags]
- - [portfolio_microdata]
- - [el_display_portfolio_term_microdata_information]
+ - `[portfolio_card]`
+ - `[portfolio_listing]`
+ - `[portfolio_gallery]`
+ - `[portfolio_pagination]`
+ - `[portfolio_categories]`
+ - `[portfolio_tags]`
+ - `[portfolio_microdata]`
+ - `[el_display_portfolio_term_microdata_information]`
+ 
+ 
+##Action Hooks
 
 **WordPress action hooks (to go in your child theme files)**
 
- - el_display_portfolio_listing
- - el_display_portfolio_categories
- - el_display_portfolio_single
- - el_display_portfolio_tags
- - el_display_portfolio_pagination
- - el_display_portfolio_microdata_information
- - el_display_portfolio_gallery
- - el_display_portfolio_term_microdata_information
+These can be used in your theme to output content
 
-###How to use in themes
+ - `el_display_portfolio_listing`
+ - `el_display_portfolio_categories`
+ - `el_display_portfolio_single`
+ - `el_display_portfolio_tags`
+ - `el_display_portfolio_pagination`
+ - `el_display_portfolio_microdata_information`
+ - `el_display_portfolio_gallery`
+ - `el_display_portfolio_term_microdata_information`
+
 The best way to use this plugin is to integrate it into your theme. 
 
 Create a new single page with the structure `single-el_portfolio.php` and output the various elements you want for each portfolio with the following hook
@@ -36,6 +44,13 @@ Create a new single page with the structure `single-el_portfolio.php` and output
 `add_action('actionName',$post->ID))` 
 
 e.g `add_action('el_display_portfolio_gallery',$post->ID))` to output a gallery for a set portfolio.
+
+**WordPress filter hooks (again to go in your child theme)
+
+These filters are used to dynamically change the theme. These filters are used so that you can output additional content or change the way the plugin works
+
+
+
 
 
 ###Extending the plugin for custom data
@@ -90,26 +105,32 @@ Below are some of the filters that can be used to adjust default values for the 
 
 **Single portfolio gallery filters**
 
- - el_portfolio_gallery_small_image_size
- - el_portfolio_gallery_large_image_size
+ - `el_portfolio_gallery_small_image_size`
+ - `el_portfolio_gallery_large_image_size`
 
 **Single portfolio gallery slider filters**
 
- - el_porfolio_gallery_slider_image_size
+ - `el_porfolio_gallery_slider_image_size`
 
 **Single portfolio listing filters**
 
- - el_portfolio_archive_image_size
+ - `el_portfolio_archive_image_size`
+ - `el_portfolio_listing_card_before_content` - Outputs additional content before the main content displayed when viewing a single portfoilio in it's card form
 
 **Single term listing filters**
 
- - el_portfolio_term_image_size
+ - `el_portfolio_term_image_size`
+ - `el_portfolio_term_card_before_content` - Outputs additional content before the main content when viewing a single term in it's card form
 
 **Misc filters**
 
- - el_portfolio_all_filter_text
- - el_portfolio_previous_text
- - el_portfolio_next_text
+ - `el_portfolio_all_filter_text`
+ - `el_portfolio_previous_text`
+ - `el_portfolio_next_text`
+ 
+ 
+ 
+ 
 
 You can hook into these in your child theme to adjust how the plugin will work. For example if you wanted the galleries to output larger resolution images you could 
 hook into the `el_portfolio_gallery_small_image_size` filter so that when the gallery grid is built it uses a higher quality image.
