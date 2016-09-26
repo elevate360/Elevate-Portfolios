@@ -4,7 +4,7 @@
  * Plugin URI:  https://elevate360.com.au/plugins
  * Description: Showcases portfolios with an easy to use admin back-end. Contains a filterable listing page for portfolios plus a single portfolio showcase. Use a combination of
  * either shortcodes or action hooks to output content for your single portfolio pages. All portfolios are enriched with schema.org metadata  
- * Version:     1.1.6
+ * Version:     1.1.7
  * Author:      Simon Codrington
  * Author URI:  https://simoncodrington.com.au
  * Text Domain: elevate-portfolios
@@ -1036,9 +1036,12 @@
 		
 		$post_type = $instance->post_type_args['post_type_name'];
 		
+		//default number of items to select
+		$number_of_items = isset($optional_args['number_of_items']) ? $optional_args['number_of_items'] : '-1';
+		
 		$post_args = array(
 			'post_type'			=> $post_type,
-			'posts_per_page'	=> -1,
+			'posts_per_page'	=> $number_of_items,
 			'post_status'		=> 'publish',
 			'orderby'			=> 'meta_value_num',
 			'order'				=> 'ASC',
@@ -1481,13 +1484,13 @@
 		
 		add_shortcode('portfolio_listing', array($this, 'display_shortcodes')); //get a listing of portfolios (multiple cards)
 		add_shortcode('portfolio_single', array($this, 'display_shortcodes')); //gets a single portfolio card
+		add_shortcode('portfolio_term_listing', array($this, 'display_shortcodes')); //gets a grid listing of all terms (categories etc)
 		add_shortcode('portfolio_gallery', array($this, 'display_shortcodes')); //gets the gallery for a single portfolio
 		add_shortcode('portfolio_pagination', array($this, 'display_shortcodes')); //gets the pagination for use on a single portfolio
 		add_shortcode('portfolio_categories', array($this, 'display_shortcodes')); //gets the categories associated with a single portfolio
 		add_shortcode('portfolio_tags', array($this, 'display_shortcodes')); //gets the tags associated with a single portfolio
 		add_shortcode('portfolio_microdata', array($this, 'display_shortcodes' )); //gets a schema.org element for a single portfolio
-		add_shortcode('portfolio_gallery_slider', array($this, 'display_shortcodes')); //gets the gallery slider for a single portfolio
-		add_shortcode('portfolio_term_listing', array($this, 'display_shortcodes')); //gets a grid listing of all terms in a taxonomy (e.g categories)
+		add_shortcode('portfolio_gallery_slider', array($this, 'display_shortcodes')); //gets the gallery slider for a single portfolio	
 		add_shortcode('portfolio_listing_for_term', array($this, 'display_shortcodes')); //displays portfolis for a single term
 		add_shortcode('portfolio_term_microdata_information', array($this, 'display_shortcodes')); //displays the microdata format for a single term (category / term)
 		
@@ -1503,7 +1506,8 @@
 				
 			//determine shortcode args
 			$args = shortcode_atts(array(
-				'items_per_row'		=> '2'
+				'items_per_row'		=> '2',
+				'number_of_items'	=> '-1'
 			), $atts, $tag);	
 			
 			//get listing of portfolio cards
