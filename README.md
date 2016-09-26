@@ -12,14 +12,16 @@ These can be used in your content area to display elements
 
 **Shortcodes (to go into your content area)**
 
- - `[portfolio_card]`
- - `[portfolio_listing]`
- - `[portfolio_gallery]`
- - `[portfolio_pagination]`
- - `[portfolio_categories]`
- - `[portfolio_tags]`
- - `[portfolio_microdata]`
- - `[el_display_portfolio_term_microdata_information]`
+ - `[portfolio_card]` - Outputs a single portfolio card
+ - `[portfolio_listing]` - Output the portfolio listing (with category toggles)
+ - `[portfolio_gallery]` - Outputs the gallery for a portfolio
+ - `[portfolio_pagination]` - Outputs the next / prev pagination
+ - `[portfolio_categories]` - Outputs the categories for a portfolio
+ - `[portfolio_tags]` - Outputs the tags for a portfolio
+ - `[portfolio_microdata]` - Outputs a microdata card for a single portfolio
+ - `[portfolio_term_microdata_information]` - Outputs a microdata card for a single term
+ - `[portfolio_term_listing]` - Outputs a grid listing of terms
+ - `[portfolio_listing_for_term]` - Gets a grid of portfolios for a single term (category etc)
  
  
 ##Action Hooks
@@ -41,15 +43,13 @@ The best way to use this plugin is to integrate it into your theme.
 
 Create a new single page with the structure `single-el_portfolio.php` and output the various elements you want for each portfolio with the following hook
 
-`add_action('actionName',$post->ID))` 
+`do_action('actionName',$post->ID));` 
 
-e.g `add_action('el_display_portfolio_gallery',$post->ID))` to output a gallery for a set portfolio.
+e.g `do_action('el_display_portfolio_gallery',$post->ID));` to output a gallery for a set portfolio.
 
 **WordPress filter hooks (again to go in your child theme)
 
 These filters are used to dynamically change the theme. These filters are used so that you can output additional content or change the way the plugin works
-
-
 
 
 
