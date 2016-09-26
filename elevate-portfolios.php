@@ -4,7 +4,7 @@
  * Plugin URI:  https://elevate360.com.au/plugins
  * Description: Showcases portfolios with an easy to use admin back-end. Contains a filterable listing page for portfolios plus a single portfolio showcase. Use a combination of
  * either shortcodes or action hooks to output content for your single portfolio pages. All portfolios are enriched with schema.org metadata  
- * Version:     1.1.5
+ * Version:     1.1.6
  * Author:      Simon Codrington
  * Author URI:  https://simoncodrington.com.au
  * Text Domain: elevate-portfolios
@@ -1225,7 +1225,6 @@
 	//given a category / term ID, get all portfolios belonging to that category, displayed as a card
 	public static function get_portfolios_for_term($term_id,  $optional_args = array()){
 		
-		
 		$instance = self::getInstance();
 		$html = '';
 		
@@ -1256,7 +1255,11 @@
 					$html .= '<div class="portfolios row-item ' . $classes .'">';
 					foreach($portfolios as $portfolio){
 						$html .= $instance->get_portfolio_single($portfolio->ID);
-					}	
+					}
+					
+					//output sizer (determines the default width of each element in the masonry grid)
+					$html .= '<div class="masonry-sizer ' . $classes .'"></div>';
+						
 					$html .= '</div>';
 				$html .= '</div>';
 			}else{
