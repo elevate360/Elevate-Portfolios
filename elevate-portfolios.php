@@ -1328,6 +1328,13 @@
 				'hide_empty'	=> false
 			);
 			
+			//determine if we want to display only top level terms
+			if(isset($optional_args['top_level_only'])){
+				if($optional_args['top_level_only'] == 'true'){
+					$term_args['parent'] = 0;
+				}
+			}
+			
 			//display terms if we have any for taxonomy
 			$terms = get_terms($taxonomy_name, $term_args); 
 
@@ -1595,12 +1602,13 @@
 			$html .= $this->get_portfolio_term_microdata_information($args['term_id']);
 		}
 		
-		//get a grid listing of all terms in a taxonomy (category / tags)
+		//get a grid listing of all terms (e.g category / tags) in a taxonomy
 		else if($tag == 'portfolio_term_listing'){
 			
 			$args = shortcode_atts(array(
-				'taxonomy_name'	=> 'el_portfolio_category',
-				'items_per_row'	=> '2'
+				'taxonomy_name'		=> 'el_portfolio_category',
+				'items_per_row'		=> '2',
+				'top_level_only'	=> 'false'
 			), $atts, $tag);
 			
 			//get a listing of terms for tax (default categories)
@@ -1610,11 +1618,12 @@
 		else if($tag == 'portfolio_listing_for_term'){
 			
 			$args = shortcode_atts(array(
-				'term_id'	=> ''
+				'term_id'	=> '',
+				'items_per_row' => '2'
 			), $atts, $tag);
 			
 			//get a listing of terms for tax (default categories)
-			$html .= $this->get_portfolios_for_term($args['term_id']);
+			$html .= $this->get_portfolios_for_term($args['term_id'], $args);
 		}
 		
 		

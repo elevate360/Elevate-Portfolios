@@ -47,7 +47,7 @@ Create a new single page with the structure `single-el_portfolio.php` and output
 
 e.g `do_action('el_display_portfolio_gallery',$post->ID));` to output a gallery for a set portfolio.
 
-**WordPress filter hooks (again to go in your child theme)
+**WordPress filter hooks (again to go in your child theme)**
 
 These filters are used to dynamically change the theme. These filters are used so that you can output additional content or change the way the plugin works
 
