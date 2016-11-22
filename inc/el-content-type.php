@@ -49,7 +49,6 @@
 				add_action('create_' . $taxonomy['taxonomy_name'], array($this, 'save_extra_taxonomy_field'), 10, 1); //saving tax when creating tax
 				add_action('edit_' . $taxonomy['taxonomy_name'], array($this, 'save_extra_taxonomy_field'), 10, 1); //saving existing tax when editing
 			}
-			
 		}
 	
 		//filter default arguments (triggered early before anything else runs);
@@ -95,17 +94,13 @@
 	
 	//register content type 
 	public function register_content_type(){
-		
-		
-		
+			
 		if($this->post_type_args){
 			
 			//TODO: make this pretty. update values (such as labels or arguments)
 			//check to see if this content type already exists
-			if(post_type_exists($this->post_type_args['post_type_name'])){
-				
-				$current_post_type = get_post_type_object($this->post_type_args['post_type_name']);
-				
+			if(post_type_exists($this->post_type_args['post_type_name'])){			
+				$current_post_type = get_post_type_object($this->post_type_args['post_type_name']);		
 			}else{
 	
 				//Default labels for custom post type
@@ -172,11 +167,8 @@
 				if(get_option($this->post_type_args['post_type_name'] . '_flush_rewrite') != false){
 					flush_rewrite_rules();
 					update_option($this->post_type_args['post_type_name'] . '_flush_rewrite', false);
-				}
-				
-				
+				}	
 			}
-	
 		}
 	}
 	
@@ -300,8 +292,6 @@
 		//exclude some fields from sanitization (ruins formatting)
 		$exclude_from_sanitization = array('editor'); 
 		
-		//filterable taxonomy field arguments
-		$this->taxonomy_field_args = apply_filters(get_called_class() . '_taxonomy_field_args', $this->taxonomy_field_args);
 		
 		//if we have tax fields
 		if($this->taxonomy_field_args){
@@ -898,26 +888,8 @@
 		return $html;	
 	}
 	
-	//TODO: Come back to
-	//register shortcodes for post type
-	public function register_shortcodes(){
-		
-	}
-	
-	//TODO: Come back to
-	//output for the shortcodes
-	public function shortcode_output(){
-		
-	}
-	
 	//called when saving post type
 	public function save_post($post_id){
-		
-		//filterable post type args
-		$this->post_type_args = apply_filters(get_called_class() . '_post_type_args', $this->post_type_args);
-		//filterable meta field args
-		$this->meta_field_args = apply_filters(get_called_class() . '_meta_field_args', $this->meta_field_args);
-		
 		
 		//check set nonce
 		if(!isset($_POST[$this->post_type_args['post_type_name'] . '_nonce_field'])){

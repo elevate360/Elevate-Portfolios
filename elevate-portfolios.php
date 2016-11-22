@@ -4,7 +4,7 @@
  * Plugin URI:  https://elevate360.com.au/plugins
  * Description: Showcases portfolios with an easy to use admin back-end. Contains a filterable listing page for portfolios plus a single portfolio showcase. Use a combination of
  * either shortcodes or action hooks to output content for your single portfolio pages. All portfolios are enriched with schema.org metadata  
- * Version:     1.1.8
+ * Version:     1.1.9
  * Author:      Simon Codrington
  * Author URI:  https://simoncodrington.com.au
  * Text Domain: elevate-portfolios
@@ -209,13 +209,6 @@
 					)
 				)
 			),
-			
-			
-			
-			
-			
-			
-			
 
 		);
 		
@@ -467,6 +460,9 @@
 		add_action('init', array($this, 'register_shortcodes'));
 		add_action('et_builder_post_types', array($this, 'add_divi_support'));
 		
+		//activation hook
+		register_activation_hook( __FILE__, array( $this, 'plugin_activate_function' ));
+		
 		//action hooks to output content
 		add_action('el_display_portfolio_listing', array($this, 'display_portfolio_listing'), 10, 1); //displays a listing of portfolio cards
 		add_action('el_display_portfolio_single', array($this, 'display_portfolio_single'), 10, 2); //displays a single portfolio card
@@ -483,6 +479,12 @@
 		//TODO: Add universal settings to customizer
 		//add_action('customize_register', array($this, 'register_customizer_settings')); //hooks into theme customizer for options
 	}
+
+	//on activation (and after set up), trigger a flushing of the rewrite rules
+	public function plugin_activate_function(){
+		flush_rewrite_rules();
+	}
+	
 
 	//add divi support so the content area can be used
 	public function add_divi_support($post_types){
