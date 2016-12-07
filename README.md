@@ -104,26 +104,29 @@ Below are some of the filters that can be used to adjust default values for the 
 
 
 **Single portfolio gallery filters**
+These filters apply to the gallery elements e.g the grid of images shown on the single portfolio page
 
  - `el_portfolio_gallery_small_image_size`
  - `el_portfolio_gallery_large_image_size`
 
 **Single portfolio gallery slider filters**
+These filters apply to the gallery slider that is shown on the single portfolio page
 
  - `el_porfolio_gallery_slider_image_size`
 
 **Single portfolio listing filters**
+These filters apply when you're displaying a listing of portfolios e.g on the page that shows all portfolio or when displaying portfolio for a specific term (category).
 
  - `el_portfolio_archive_image_size`
  - `el_portfolio_listing_card_before_content` - Outputs additional content before the main content displayed when viewing a single portfoilio in it's card form
 
 **Single term listing filters**
-
+These filters apply when viewing a single term page e.g if you have a 'residential' category for portfolios and are currently viewing it. These aren't applicable if you just use the portfolio shortcode on a page (it's not a real archive page)
  - `el_portfolio_term_image_size`
  - `el_portfolio_term_card_before_content` - Outputs additional content before the main content when viewing a single term in it's card form
 
 **Misc filters**
-
+Other filters that are used by the plugin 
  - `el_portfolio_all_filter_text`
  - `el_portfolio_previous_text`
  - `el_portfolio_next_text`
